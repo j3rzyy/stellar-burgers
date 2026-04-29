@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { getIngredientsApi } from '../utils/burger-api';
-import { TIngredient } from '@utils-types';
+import { TConstructorIngredient, TIngredient } from '@utils-types';
 
 export const fetchIngredients = createAsyncThunk(
   'ingredients/fetch',
@@ -22,7 +22,7 @@ type TState = {
   error: string | null;
 };
 
-const initialState: TState = {
+const initialIngredientsState: TState = {
   ingredients: [],
   isIngredientsLoading: false,
   error: null
@@ -30,7 +30,7 @@ const initialState: TState = {
 
 export const ingredientsSlice = createSlice({
   name: 'ingredients',
-  initialState,
+  initialState: initialIngredientsState,
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -50,3 +50,43 @@ export const ingredientsSlice = createSlice({
 });
 
 export const ingredientsReducer = ingredientsSlice.reducer;
+
+// ===================================================================
+
+type TConstructorState = {
+  constructorItems: {
+    bun: TIngredient | null;
+    ingredients: TConstructorIngredient[];
+  };
+  orderRequest: boolean;
+  orderModalData: any | null;
+};
+
+const initialBurgerConstructorState: TConstructorState = {
+  constructorItems: {
+    bun: null,
+    ingredients: []
+  },
+  orderRequest: false,
+  orderModalData: null
+};
+
+export const constructorSlice = createSlice({
+  name: 'burgerConstructor',
+  initialState: initialBurgerConstructorState,
+  reducers: {
+    setBun: (state, action: PayloadAction<TIngredient>) => {
+      state.constructorItems.bun = action.payload;
+    },
+    addIngredient: (state, action: PayloadAction<TConstructorIngredient>) => {
+      state.constructorItems.ingredients.push(action.payload);
+    },
+    clearConstructor: (state) => {
+      state.constructorItems = { bun: null, ingredients: [] };
+    }
+  }
+});
+
+export const constructorReducer = constructorSlice.reducer;
+export const { setBun, addIngredient, clearConstructor } =
+  constructorSlice.actions;
