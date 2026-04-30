@@ -23,7 +23,7 @@ import { fetchIngredients } from '@slices';
 const App = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  /** TODO: взять переменные из стора */
+
   const { isIngredientsLoading, ingredients, error } = useSelector(
     (state) => state.ingredients
   );
