@@ -1,10 +1,12 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { getIngredientsApi, orderBurgerApi } from '../utils/burger-api';
+import {
+  getIngredientsApi,
+  orderBurgerApi,
+  registerUserApi
+} from '../utils/burger-api';
 import { TConstructorIngredient, TIngredient } from '@utils-types';
 
-// ===================================================================
-// 🧾 INGREDIENTS SLICE
-// ===================================================================
+// INGREDIENTS SLICE
 
 export const fetchIngredients = createAsyncThunk(
   'ingredients/fetch',
@@ -49,9 +51,7 @@ export const ingredientsSlice = createSlice({
 
 export const ingredientsReducer = ingredientsSlice.reducer;
 
-// ===================================================================
-// 🍔 CONSTRUCTOR SLICE
-// ===================================================================
+// CONSTRUCTOR SLICE
 
 type TConstructorState = {
   constructorItems: {
@@ -145,3 +145,64 @@ export const {
   moveIngredientDown,
   resetOrder
 } = constructorSlice.actions;
+
+// AUTH SLICE
+
+type TUser = {
+  email: string;
+  name: string;
+};
+
+type TAuthState = {
+  user: TUser | null;
+  loading: boolean;
+  error: string | null;
+};
+
+const initialAuthState: TAuthState = {
+  user: null,
+  loading: false,
+  error: null
+};
+
+export const registerUser = createAsyncThunk(
+  'auth/register',
+  async (data: { email: string; password: string; name: string }) => {
+    const res = await registerUserApi(data);
+
+    localStorage.setItem('accessToken', res.accessToken);
+    localStorage.setItem('refreshToken', res.refreshToken);
+
+    return res.user;
+  }
+);
+
+export const authSlice = createSlice({
+  name: 'auth',
+  initialState: initialAuthState,
+  reducers: {
+    logout: (state) => {
+      state.user = null;
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Ошибка регистрации';
+      });
+  }
+});
+
+export const authReducer = authSlice.reducer;
+export const { logout } = authSlice.actions;
