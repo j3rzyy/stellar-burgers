@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import {
   getIngredientsApi,
+  loginUserApi,
   orderBurgerApi,
   registerUserApi
 } from '../utils/burger-api';
@@ -177,6 +178,18 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const loginUser = createAsyncThunk(
+  'auth/login',
+  async (data: { email: string; password: string }) => {
+    const res = await loginUserApi(data);
+
+    localStorage.setItem('accessToken', res.accessToken);
+    localStorage.setItem('refreshToken', res.refreshToken);
+
+    return res.user;
+  }
+);
+
 export const authSlice = createSlice({
   name: 'auth',
   initialState: initialAuthState,
@@ -188,6 +201,7 @@ export const authSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
+    // register
     builder
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
@@ -200,6 +214,21 @@ export const authSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Ошибка регистрации';
+      });
+
+    // login
+    builder
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Ошибка входа';
       });
   }
 });
