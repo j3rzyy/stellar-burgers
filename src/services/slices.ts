@@ -1,11 +1,13 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import {
   getIngredientsApi,
+  getOrdersApi,
   loginUserApi,
   orderBurgerApi,
   registerUserApi
 } from '../utils/burger-api';
-import { TConstructorIngredient, TIngredient } from '@utils-types';
+import { TConstructorIngredient, TIngredient, TOrder } from '@utils-types';
+import { setCookie } from '../utils/cookie';
 
 // INGREDIENTS SLICE
 
@@ -171,7 +173,7 @@ export const registerUser = createAsyncThunk(
   async (data: { email: string; password: string; name: string }) => {
     const res = await registerUserApi(data);
 
-    localStorage.setItem('accessToken', res.accessToken);
+    setCookie('accessToken', res.accessToken);
     localStorage.setItem('refreshToken', res.refreshToken);
 
     return res.user;
@@ -183,7 +185,7 @@ export const loginUser = createAsyncThunk(
   async (data: { email: string; password: string }) => {
     const res = await loginUserApi(data);
 
-    localStorage.setItem('accessToken', res.accessToken);
+    setCookie('accessToken', res.accessToken);
     localStorage.setItem('refreshToken', res.refreshToken);
 
     return res.user;
@@ -235,3 +237,45 @@ export const authSlice = createSlice({
 
 export const authReducer = authSlice.reducer;
 export const { logout } = authSlice.actions;
+
+// FEED
+export const fetchOrders = createAsyncThunk('feed/fetchOrders', async () => {
+  const data = await getOrdersApi();
+  return data;
+});
+
+type TFeedState = {
+  orders: TOrder[];
+  loading: boolean;
+  error: string | null;
+};
+
+const initialState: TFeedState = {
+  orders: [],
+  loading: false,
+  error: null
+};
+
+const feedSlice = createSlice({
+  name: 'feed',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchOrders.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchOrders.fulfilled, (state, action) => {
+        console.log('ORDERS:', action.payload);
+
+        state.loading = false;
+        state.orders = action.payload;
+      })
+      .addCase(fetchOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Ошибка';
+      });
+  }
+});
+
+export const feedReducer = feedSlice.reducer;
