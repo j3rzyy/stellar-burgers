@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { getIngredientsApi } from '../utils/burger-api';
+import { getIngredientsApi, orderBurgerApi } from '../utils/burger-api';
 import { TConstructorIngredient, TIngredient } from '@utils-types';
 
 // ===================================================================
@@ -62,6 +62,14 @@ type TConstructorState = {
   orderModalData: any | null;
 };
 
+export const createOrder = createAsyncThunk(
+  'burgerConstructor/createOrder',
+  async (ingredientsIds: string[]) => {
+    const data = await orderBurgerApi(ingredientsIds);
+    return data;
+  }
+);
+
 const initialConstructorState: TConstructorState = {
   constructorItems: {
     bun: null,
@@ -107,12 +115,23 @@ export const constructorSlice = createSlice({
       [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]];
     },
 
-    clearConstructor: (state) => {
-      state.constructorItems = {
-        bun: null,
-        ingredients: []
-      };
+    resetOrder: (state) => {
+      state.orderModalData = null;
     }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createOrder.pending, (state) => {
+        state.orderRequest = true;
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.orderRequest = false;
+        state.orderModalData = action.payload;
+        state.constructorItems = { bun: null, ingredients: [] };
+      })
+      .addCase(createOrder.rejected, (state) => {
+        state.orderRequest = false;
+      });
   }
 });
 
@@ -124,5 +143,5 @@ export const {
   removeIngredient,
   moveIngredientUp,
   moveIngredientDown,
-  clearConstructor
+  resetOrder
 } = constructorSlice.actions;
