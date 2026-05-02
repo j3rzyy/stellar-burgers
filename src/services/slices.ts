@@ -54,7 +54,7 @@ export const ingredientsSlice = createSlice({
 
 export const ingredientsReducer = ingredientsSlice.reducer;
 
-// CONSTRUCTOR SLICE
+// CONSTRUCTOR
 
 type TConstructorState = {
   constructorItems: {
@@ -149,7 +149,7 @@ export const {
   resetOrder
 } = constructorSlice.actions;
 
-// AUTH SLICE
+// AUTH
 
 type TUser = {
   email: string;
