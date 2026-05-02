@@ -4,6 +4,7 @@ import {
   getOrdersApi,
   getUserApi,
   loginUserApi,
+  logoutApi,
   orderBurgerApi,
   registerUserApi,
   updateUserApi
@@ -71,10 +72,9 @@ export const createOrder = createAsyncThunk(
   'burgerConstructor/createOrder',
   async (ingredientsIds: string[]) => {
     const data = await orderBurgerApi(ingredientsIds);
-    return data;
+    return data.order;
   }
 );
-
 const initialConstructorState: TConstructorState = {
   constructorItems: {
     bun: null,
@@ -219,16 +219,14 @@ export const getUser = createAsyncThunk('auth/getUser', async () => {
   return Promise.reject(res);
 });
 
+export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
+  await logoutApi();
+});
+
 export const authSlice = createSlice({
   name: 'auth',
   initialState: initialAuthState,
-  reducers: {
-    logout: (state) => {
-      state.user = null;
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-    }
-  },
+  reducers: {},
   extraReducers: (builder) => {
     // register
     builder
@@ -288,11 +286,17 @@ export const authSlice = createSlice({
         state.loading = false;
         state.user = null;
       });
+
+    // logout user
+
+    builder.addCase(logoutUser.fulfilled, (state) => {
+      state.user = null;
+    });
   }
 });
 
 export const authReducer = authSlice.reducer;
-export const { logout } = authSlice.actions;
+// export const { logout } = authSlice.actions;
 
 // FEED
 export const fetchOrders = createAsyncThunk('feed/fetchOrders', async () => {

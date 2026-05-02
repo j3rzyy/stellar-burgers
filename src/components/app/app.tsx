@@ -34,15 +34,12 @@ const App = () => {
 
   useEffect(() => {
     dispatch(fetchIngredients());
-  }, [dispatch]);
 
-  useEffect(() => {
-    dispatch(fetchIngredients());
+    // const token = getCookie('accessToken');
 
-    const token = getCookie('accessToken');
-    if (token) {
-      dispatch(getUser());
-    }
+    // if (token) {
+    //   dispatch(getUser());
+    // }
   }, [dispatch]);
 
   return (

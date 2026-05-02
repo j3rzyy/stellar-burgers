@@ -29,8 +29,6 @@ export const Profile: FC = () => {
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
 
-    console.log('test');
-
     dispatch(
       updateUser({
         name: formValue.name,
