@@ -161,12 +161,14 @@ type TUser = {
 type TAuthState = {
   user: TUser | null;
   loading: boolean;
+  initialized: boolean;
   error: string | null;
 };
 
 const initialAuthState: TAuthState = {
   user: null,
   loading: false,
+  initialized: false,
   error: null
 };
 
@@ -226,7 +228,11 @@ export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
 export const authSlice = createSlice({
   name: 'auth',
   initialState: initialAuthState,
-  reducers: {},
+  reducers: {
+    setInitialized: (state) => {
+      state.initialized = true;
+    }
+  },
   extraReducers: (builder) => {
     // register
     builder
@@ -281,22 +287,26 @@ export const authSlice = createSlice({
       .addCase(getUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        state.initialized = true;
       })
+
       .addCase(getUser.rejected, (state) => {
         state.loading = false;
         state.user = null;
+        state.initialized = true;
       });
 
     // logout user
 
     builder.addCase(logoutUser.fulfilled, (state) => {
       state.user = null;
+      state.initialized = true;
     });
   }
 });
 
 export const authReducer = authSlice.reducer;
-// export const { logout } = authSlice.actions;
+export const { setInitialized } = authSlice.actions;
 
 // FEED
 export const fetchOrders = createAsyncThunk('feed/fetchOrders', async () => {

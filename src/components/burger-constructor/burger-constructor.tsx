@@ -15,8 +15,6 @@ export const BurgerConstructor: FC = () => {
     (state) => state.burgerConstructor
   );
 
-  console.log('orderModalData', orderModalData);
-
   const onOrderClick = () => {
     if (!user) {
       navigate('/login');

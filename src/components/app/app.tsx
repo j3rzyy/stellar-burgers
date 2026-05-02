@@ -18,7 +18,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from '../protected-route/protected-route';
 import { useDispatch, useSelector } from '../../services/store';
 import { useEffect } from 'react';
-import { fetchIngredients, getUser } from '@slices';
+import { fetchIngredients, getUser, setInitialized } from '@slices';
 import { getCookie } from '../../utils/cookie';
 
 const App = () => {
@@ -35,11 +35,13 @@ const App = () => {
   useEffect(() => {
     dispatch(fetchIngredients());
 
-    // const token = getCookie('accessToken');
+    const token = getCookie('accessToken');
 
-    // if (token) {
-    //   dispatch(getUser());
-    // }
+    if (token) {
+      dispatch(getUser());
+    } else {
+      dispatch(setInitialized());
+    }
   }, [dispatch]);
 
   return (
