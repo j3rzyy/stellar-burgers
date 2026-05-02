@@ -18,7 +18,8 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from '../protected-route/protected-route';
 import { useDispatch, useSelector } from '../../services/store';
 import { useEffect } from 'react';
-import { fetchIngredients } from '@slices';
+import { fetchIngredients, getUser } from '@slices';
+import { getCookie } from '../../utils/cookie';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -33,6 +34,15 @@ const App = () => {
 
   useEffect(() => {
     dispatch(fetchIngredients());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchIngredients());
+
+    const token = getCookie('accessToken');
+    if (token) {
+      dispatch(getUser());
+    }
   }, [dispatch]);
 
   return (

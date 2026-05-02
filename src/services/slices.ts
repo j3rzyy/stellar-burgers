@@ -2,9 +2,11 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import {
   getIngredientsApi,
   getOrdersApi,
+  getUserApi,
   loginUserApi,
   orderBurgerApi,
-  registerUserApi
+  registerUserApi,
+  updateUserApi
 } from '../utils/burger-api';
 import { TConstructorIngredient, TIngredient, TOrder } from '@utils-types';
 import { setCookie } from '../utils/cookie';
@@ -192,6 +194,31 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const updateUser = createAsyncThunk(
+  'auth/updateUser',
+  async (data: { name: string; email: string; password?: string }) => {
+    const res = await updateUserApi(data);
+
+    if (res?.success) {
+      console.log(res.user);
+
+      return res.user;
+    }
+
+    return Promise.reject(res);
+  }
+);
+
+export const getUser = createAsyncThunk('auth/getUser', async () => {
+  const res = await getUserApi();
+
+  if (res?.success) {
+    return res.user;
+  }
+
+  return Promise.reject(res);
+});
+
 export const authSlice = createSlice({
   name: 'auth',
   initialState: initialAuthState,
@@ -231,6 +258,35 @@ export const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Ошибка входа';
+      });
+
+    // update user
+    builder
+      .addCase(updateUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Ошибка обновления';
+      });
+
+    // get user
+    builder
+      .addCase(getUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(getUser.rejected, (state) => {
+        state.loading = false;
+        state.user = null;
       });
   }
 });
