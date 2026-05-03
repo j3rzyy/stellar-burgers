@@ -13,10 +13,9 @@ import '../../index.css';
 import styles from './app.module.css';
 
 import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
-import { Preloader } from '@ui';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from '../protected-route/protected-route';
-import { useDispatch, useSelector } from '../../services/store';
+import { useDispatch } from '../../services/store';
 import { useEffect } from 'react';
 import { fetchIngredients, getUser, setInitialized } from '@slices';
 import { getCookie } from '../../utils/cookie';
@@ -24,10 +23,6 @@ import { getCookie } from '../../utils/cookie';
 const App = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const { isIngredientsLoading, ingredients, error } = useSelector(
-    (state) => state.ingredients
-  );
 
   const location = useLocation();
   const background = location.state?.background;

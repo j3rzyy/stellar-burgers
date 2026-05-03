@@ -11,7 +11,7 @@ import {
   updateUserApi
 } from '../utils/burger-api';
 import { TConstructorIngredient, TIngredient, TOrder } from '@utils-types';
-import { deleteCookie, getCookie, setCookie } from '../utils/cookie';
+import { deleteCookie, setCookie } from '../utils/cookie';
 
 // INGREDIENTS
 
@@ -138,6 +138,12 @@ export const constructorSlice = createSlice({
       .addCase(createOrder.rejected, (state) => {
         state.orderRequest = false;
       });
+
+    builder.addCase(logoutUser.fulfilled, (state) => {
+      state.constructorItems = { bun: null, ingredients: [] };
+      state.orderRequest = false;
+      state.orderModalData = null;
+    });
   }
 });
 
@@ -399,6 +405,10 @@ const profileOrdersSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Ошибка';
       });
+
+    builder.addCase(logoutUser.fulfilled, (state) => {
+      state.orders = [];
+    });
   }
 });
 
