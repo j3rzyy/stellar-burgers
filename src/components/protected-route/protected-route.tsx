@@ -12,13 +12,14 @@ export const ProtectedRoute = ({
   children
 }: ProtectedRouteProps) => {
   const { user, initialized, loading } = useSelector((s) => s.auth);
+  const location = useLocation();
 
   if (!initialized || loading) {
     return <Preloader />;
   }
 
   if (!onlyUnAuth && !user) {
-    return <Navigate to='/login' replace />;
+    return <Navigate to='/login' replace state={{ from: location }} />;
   }
 
   if (onlyUnAuth && user) {
