@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import {
+  fetchWithRefresh,
+  getFeedsApi,
   getIngredientsApi,
   getOrdersApi,
   getUserApi,
@@ -7,10 +9,11 @@ import {
   logoutApi,
   orderBurgerApi,
   registerUserApi,
+  TFeedsResponse,
   updateUserApi
 } from '../utils/burger-api';
 import { TConstructorIngredient, TIngredient, TOrder } from '@utils-types';
-import { setCookie } from '../utils/cookie';
+import { getCookie, setCookie } from '../utils/cookie';
 
 // INGREDIENTS SLICE
 
@@ -308,18 +311,24 @@ export const { setInitialized } = authSlice.actions;
 
 // FEED
 export const fetchOrders = createAsyncThunk('feed/fetchOrders', async () => {
-  const data = await getOrdersApi();
-  return data;
+  const data = await getFeedsApi();
+
+  if (data?.success) return data;
+  return Promise.reject(data);
 });
 
 type TFeedState = {
   orders: TOrder[];
+  total: number;
+  totalToday: number;
   loading: boolean;
   error: string | null;
 };
 
 const initialState: TFeedState = {
   orders: [],
+  total: 0,
+  totalToday: 0,
   loading: false,
   error: null
 };
@@ -335,7 +344,10 @@ const feedSlice = createSlice({
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload;
+
+        state.orders = action.payload.orders;
+        state.total = action.payload.total;
+        state.totalToday = action.payload.totalToday;
       })
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
