@@ -50,6 +50,7 @@ const App = () => {
 
       <Routes location={background || location}>
         <Route path='/' element={<ConstructorPage />} />
+
         <Route path='/feed' element={<Feed />} />
 
         <Route
@@ -60,6 +61,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path='/register'
           element={
@@ -68,6 +70,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path='/forgot-password'
           element={
@@ -76,6 +79,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path='/reset-password'
           element={
@@ -84,6 +88,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path='/profile'
           element={
@@ -92,6 +97,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path='/profile/orders'
           element={
@@ -104,12 +110,23 @@ const App = () => {
         <Route path='*' element={<NotFound404 />} />
 
         <Route path='/feed/:number' element={<OrderInfo />} />
-        <Route path='/ingredients/:id' element={<IngredientDetails />} />
+
+        <Route
+          path='/ingredients/:id'
+          element={
+            <div className={styles.page_center}>
+              <IngredientDetails />
+            </div>
+          }
+        />
+
         <Route
           path='/profile/orders/:number'
           element={
             <ProtectedRoute>
-              <OrderInfo />
+              <div className={styles.page_center}>
+                <OrderInfo />
+              </div>
             </ProtectedRoute>
           }
         />

@@ -1,9 +1,10 @@
-import { FC, useMemo } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+import { TIngredient, TOrder } from '@utils-types';
 import { useSelector } from '../../services/store';
 import { useParams } from 'react-router-dom';
+import { getOrderByNumberApi } from '@api';
 
 export const OrderInfo: FC = () => {
   const { number } = useParams();
@@ -11,7 +12,26 @@ export const OrderInfo: FC = () => {
   const { orders } = useSelector((state) => state.feed);
   const { ingredients } = useSelector((state) => state.ingredients);
 
-  const orderData = orders.find((item) => item.number === Number(number));
+  const [orderData, setOrderData] = useState<TOrder | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const orderFromStore = orders.find((item) => item.number === Number(number));
+
+  useEffect(() => {
+    if (orderFromStore) {
+      setOrderData(orderFromStore);
+      setLoading(false);
+      return;
+    }
+
+    if (number) {
+      getOrderByNumberApi(Number(number))
+        .then((res) => {
+          setOrderData(res.orders[0]);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [orderFromStore, number]);
 
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
@@ -27,10 +47,7 @@ export const OrderInfo: FC = () => {
         if (!acc[item]) {
           const ingredient = ingredients.find((ing) => ing._id === item);
           if (ingredient) {
-            acc[item] = {
-              ...ingredient,
-              count: 1
-            };
+            acc[item] = { ...ingredient, count: 1 };
           }
         } else {
           acc[item].count++;
@@ -54,7 +71,7 @@ export const OrderInfo: FC = () => {
     };
   }, [orderData, ingredients]);
 
-  if (!orderInfo) {
+  if (loading || !orderInfo) {
     return <Preloader />;
   }
 
