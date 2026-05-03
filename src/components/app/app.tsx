@@ -15,14 +15,18 @@ import styles from './app.module.css';
 import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from '../protected-route/protected-route';
-import { useDispatch } from '../../services/store';
+import { useDispatch, useSelector } from '../../services/store';
 import { useEffect } from 'react';
 import { fetchIngredients, getUser, setInitialized } from '@slices';
 import { getCookie } from '../../utils/cookie';
+import { Preloader } from '@ui';
 
 const App = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { isIngredientsLoading } = useSelector((s) => s.ingredients);
+  const { initialized, loading: authLoading } = useSelector((s) => s.auth);
 
   const location = useLocation();
   const background = location.state?.background;
@@ -33,11 +37,23 @@ const App = () => {
     const token = getCookie('accessToken');
 
     if (token) {
-      dispatch(getUser());
+      dispatch(getUser()).finally(() => {
+        dispatch(setInitialized());
+      });
     } else {
       dispatch(setInitialized());
     }
   }, [dispatch]);
+
+  const appLoading = !initialized || isIngredientsLoading || authLoading;
+
+  if (appLoading) {
+    return (
+      <div className={styles.app}>
+        <Preloader />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.app}>
