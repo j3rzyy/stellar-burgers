@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import {
-  fetchWithRefresh,
   getFeedsApi,
   getIngredientsApi,
   getOrdersApi,
@@ -9,13 +8,12 @@ import {
   logoutApi,
   orderBurgerApi,
   registerUserApi,
-  TFeedsResponse,
   updateUserApi
 } from '../utils/burger-api';
 import { TConstructorIngredient, TIngredient, TOrder } from '@utils-types';
-import { getCookie, setCookie } from '../utils/cookie';
+import { deleteCookie, getCookie, setCookie } from '../utils/cookie';
 
-// INGREDIENTS SLICE
+// INGREDIENTS
 
 export const fetchIngredients = createAsyncThunk(
   'ingredients/fetch',
@@ -224,6 +222,10 @@ export const getUser = createAsyncThunk('auth/getUser', async () => {
 
 export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
   await logoutApi();
+
+  deleteCookie('accessToken');
+
+  localStorage.removeItem('refreshToken');
 });
 
 export const authSlice = createSlice({

@@ -11,10 +11,9 @@ export const ProtectedRoute = ({
   onlyUnAuth = false,
   children
 }: ProtectedRouteProps) => {
-  const user = useSelector((s) => s.auth.user);
-  const initialized = useSelector((s) => s.auth.initialized);
+  const { user, initialized, loading } = useSelector((s) => s.auth);
 
-  if (!initialized) {
+  if (!initialized || loading) {
     return <Preloader />;
   }
 
