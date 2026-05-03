@@ -357,3 +357,47 @@ const feedSlice = createSlice({
 });
 
 export const feedReducer = feedSlice.reducer;
+
+// ORDERS
+
+export const fetchUserOrders = createAsyncThunk(
+  'profileOrders/fetch',
+  async () => {
+    const data = await getOrdersApi();
+    return data;
+  }
+);
+
+type TProfileOrdersState = {
+  orders: TOrder[];
+  loading: boolean;
+  error: string | null;
+};
+
+const initialOrderState: TProfileOrdersState = {
+  orders: [],
+  loading: false,
+  error: null
+};
+
+const profileOrdersSlice = createSlice({
+  name: 'profileOrders',
+  initialState: initialOrderState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchUserOrders.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchUserOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload;
+      })
+      .addCase(fetchUserOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Ошибка';
+      });
+  }
+});
+
+export const profileOrdersReducer = profileOrdersSlice.reducer;
