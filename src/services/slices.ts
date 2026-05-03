@@ -202,8 +202,6 @@ export const updateUser = createAsyncThunk(
     const res = await updateUserApi(data);
 
     if (res?.success) {
-      console.log(res.user);
-
       return res.user;
     }
 
@@ -336,8 +334,6 @@ const feedSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
-        console.log('ORDERS:', action.payload);
-
         state.loading = false;
         state.orders = action.payload;
       })

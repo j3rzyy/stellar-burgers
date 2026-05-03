@@ -10,8 +10,6 @@ export const ProfileMenu: FC = () => {
   const { pathname } = useLocation();
 
   const handleLogout = () => {
-    console.log(getCookie('accessToken'));
-    console.log(localStorage.getItem('refreshToken'));
     dispatch(logoutUser());
   };
   return <ProfileMenuUI handleLogout={handleLogout} pathname={pathname} />;
