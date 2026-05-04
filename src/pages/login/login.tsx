@@ -16,14 +16,11 @@ export const Login: FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: SyntheticEvent) => {
+  const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
 
-    dispatch(loginUser({ email, password })).then((res: any) => {
-      if (res.meta.requestStatus === 'fulfilled') {
-        navigate(from, { replace: true });
-      }
-    });
+    await dispatch(loginUser({ email, password })).unwrap();
+    navigate(from, { replace: true });
   };
 
   return (

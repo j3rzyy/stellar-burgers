@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { orderBurgerApi } from '../../utils/burger-api';
-import { TConstructorIngredient, TIngredient } from '@utils-types';
+import { orderBurgerApi, TNewOrder } from '../../utils/burger-api';
+import { TConstructorIngredient, TIngredient, TOrder } from '@utils-types';
 import { logoutUser } from './authSlice';
 
 export const createOrder = createAsyncThunk(
@@ -17,7 +17,7 @@ type TConstructorState = {
     ingredients: TConstructorIngredient[];
   };
   orderRequest: boolean;
-  orderModalData: any | null;
+  orderModalData: TNewOrder | null;
 };
 
 const initialState: TConstructorState = {

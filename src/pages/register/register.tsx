@@ -4,12 +4,18 @@ import { useDispatch, useSelector } from '../../services/store';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { registerUser } from '../../services/slices/authSlice';
 
+type TLocationState = {
+  from?: {
+    pathname: string;
+  };
+};
+
 export const Register: FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = (location.state as any)?.from?.pathname || '/';
+  const from = (location.state as TLocationState)?.from?.pathname || '/';
 
   const { error } = useSelector((state) => state.auth);
 
@@ -20,17 +26,11 @@ export const Register: FC = () => {
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
 
-    dispatch(
-      registerUser({
-        email,
-        password,
-        name: userName
-      })
-    ).then((res: any) => {
-      if (res.meta.requestStatus === 'fulfilled') {
+    dispatch(registerUser({ email, password, name: userName }))
+      .unwrap()
+      .then(() => {
         navigate(from, { replace: true });
-      }
-    });
+      });
   };
 
   return (
