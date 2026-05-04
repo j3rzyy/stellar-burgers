@@ -1,8 +1,8 @@
-import { fetchUserOrders } from '@slices';
 import { Preloader } from '@ui';
 import { ProfileOrdersUI } from '@ui-pages';
 import { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
+import { fetchUserOrders } from '../../services/slices/profileOrdersSlice';
 
 export const ProfileOrders: FC = () => {
   const dispatch = useDispatch();

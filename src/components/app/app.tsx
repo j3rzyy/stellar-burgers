@@ -17,9 +17,10 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from '../protected-route/protected-route';
 import { useDispatch, useSelector } from '../../services/store';
 import { useEffect } from 'react';
-import { fetchIngredients, getUser, setInitialized } from '@slices';
 import { getCookie } from '../../utils/cookie';
 import { Preloader } from '@ui';
+import { fetchIngredients } from '../../services/slices/ingredientsSlice';
+import { getUser, setInitialized } from '../../services/slices/authSlice';
 
 const App = () => {
   const dispatch = useDispatch();
