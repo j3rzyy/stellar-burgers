@@ -1,14 +1,17 @@
 import { FC, SyntheticEvent, useState } from 'react';
 import { RegisterUI } from '@ui-pages';
 import { useDispatch, useSelector } from '../../services/store';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { registerUser } from '@slices';
 
 export const Register: FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const { error, loading } = useSelector((state) => state.auth);
+  const from = (location.state as any)?.from?.pathname || '/';
+
+  const { error } = useSelector((state) => state.auth);
 
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
@@ -25,7 +28,7 @@ export const Register: FC = () => {
       })
     ).then((res: any) => {
       if (res.meta.requestStatus === 'fulfilled') {
-        navigate('/');
+        navigate(from, { replace: true });
       }
     });
   };
