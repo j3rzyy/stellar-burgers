@@ -19,8 +19,10 @@ export const Login: FC = () => {
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
 
-    await dispatch(loginUser({ email, password })).unwrap();
-    navigate(from, { replace: true });
+    try {
+      await dispatch(loginUser({ email, password })).unwrap();
+      navigate(from, { replace: true });
+    } catch (e) {}
   };
 
   return (
