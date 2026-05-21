@@ -35,3 +35,10 @@
   margin: 0 auto;
   color: red;
 }
+
+.page_center {
+  display: flex;
+  justify-content: center;
+  margin-top: 120px;
+  min-height: 100vh;
+}
