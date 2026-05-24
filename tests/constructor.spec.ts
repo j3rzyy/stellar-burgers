@@ -1,18 +1,9 @@
 import { test, expect } from '@playwright/test';
-import ingredients from './fixtures/ingredients.json';
-
-// test('has title', async ({ page }) => {
-//   await page.goto('https://playwright.dev/');
-
-//   // Expect a title "to contain" a substring.
-//   await expect(page).toHaveTitle(/Playwright/);
-// });
+import ingredients from './moks/ingredients.json';
 
 test.describe('Конструктор бургера', () => {
   test.beforeEach(async ({ page }) => {
     await page.route('**/api/ingredients', async (route) => {
-      console.log('MOCK OK');
-
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -59,8 +50,6 @@ test.describe('Конструктор бургера', () => {
 test.describe('Модальное окно ингредиента', () => {
   test.beforeEach(async ({ page }) => {
     await page.route('**/api/ingredients', async (route) => {
-      console.log('MOCK OK');
-
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -115,5 +104,79 @@ test.describe('Модальное окно ингредиента', () => {
     });
 
     await expect(modal).not.toBeVisible();
+  });
+});
+
+test.describe('Создание заказа', () => {
+  test.beforeEach(async ({ page, context }) => {
+    await page.route('**/api/ingredients', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(ingredients)
+      });
+    });
+
+    await context.addCookies([
+      {
+        name: 'accessToken',
+        value: 'Bearer test-access-token',
+        domain: 'localhost',
+        path: '/'
+      }
+    ]);
+
+    await page.addInitScript(() => {
+      localStorage.setItem('refreshToken', 'test-refresh-token');
+    });
+
+    await page.routeFromHAR('./tests/hars/user.har', {
+      url: '**/api/auth/user',
+      update: false
+    });
+
+    await page.routeFromHAR('./tests/hars/orders.har', {
+      url: '**/api/orders',
+      update: false
+    });
+
+    await page.goto('/');
+  });
+
+  test.afterEach(async ({ page, context }) => {
+    await context.clearCookies();
+    await page.evaluate(() => localStorage.clear());
+  });
+
+  test('должен создавать заказ и очищать конструктор', async ({ page }) => {
+    await page
+      .locator('li')
+      .filter({ hasText: 'Флюоресцентная булка' })
+      .getByRole('button', { name: /добавить/i })
+      .click();
+
+    await page
+      .locator('li')
+      .filter({ hasText: 'Биокотлета' })
+      .getByRole('button', { name: /добавить/i })
+      .click();
+
+    await page.getByRole('button', { name: /оформить заказ/i }).click();
+
+    const orderModal = page.getByTestId('modal');
+
+    await expect(orderModal).toBeVisible();
+
+    await expect(orderModal).toContainText('105640');
+
+    await page.getByTestId('modal-close').click();
+
+    await expect(orderModal).not.toBeVisible();
+
+    const constructor = page.getByTestId('burger-constructor');
+
+    await expect(constructor).not.toContainText('Флюоресцентная булка');
+
+    await expect(constructor).not.toContainText('Биокотлета');
   });
 });
