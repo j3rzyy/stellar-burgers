@@ -88,6 +88,23 @@ describe('Редьюсер burgerConstructor (constructorSlice)', () => {
     ]);
   });
 
+  test('не перемещает ингредиент вверх, если он первый в списке', () => {
+    const stateWithIngredients = {
+      ...initialState,
+      constructorItems: {
+        bun: null,
+        ingredients: [ingredient1, ingredient2]
+      }
+    };
+
+    const state = constructorReducer(stateWithIngredients, moveIngredientUp(0));
+
+    expect(state.constructorItems.ingredients).toEqual([
+      ingredient1,
+      ingredient2
+    ]);
+  });
+
   test('перемещает ингредиент вниз', () => {
     const stateWithIngredients = {
       ...initialState,
@@ -105,6 +122,26 @@ describe('Редьюсер burgerConstructor (constructorSlice)', () => {
     expect(state.constructorItems.ingredients).toEqual([
       ingredient2,
       ingredient1
+    ]);
+  });
+
+  test('не перемещает ингредиент вниз, если он последний в списке', () => {
+    const stateWithIngredients = {
+      ...initialState,
+      constructorItems: {
+        bun: null,
+        ingredients: [ingredient1, ingredient2]
+      }
+    };
+
+    const state = constructorReducer(
+      stateWithIngredients,
+      moveIngredientDown(1)
+    );
+
+    expect(state.constructorItems.ingredients).toEqual([
+      ingredient1,
+      ingredient2
     ]);
   });
 });

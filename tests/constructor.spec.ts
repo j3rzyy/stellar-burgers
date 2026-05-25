@@ -1,19 +1,15 @@
 import { test, expect } from '@playwright/test';
-import ingredients from './moks/ingredients.json';
 
-test.describe('Конструктор бургера', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.route('**/api/ingredients', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ingredients)
-      });
-    });
-
-    await page.goto('/');
+test.beforeEach(async ({ page }) => {
+  await page.routeFromHAR('./tests/hars/ingredients.har', {
+    url: '**/api/ingredients',
+    update: false
   });
 
+  await page.goto('/');
+});
+
+test.describe('Конструктор бургера', () => {
   test('должен отображать список ингредиентов', async ({ page }) => {
     await expect(page.getByText('Флюоресцентная булка')).toBeVisible();
 
@@ -22,7 +18,7 @@ test.describe('Конструктор бургера', () => {
 
   test('должен добавлять булку в конструктор', async ({ page }) => {
     const bunCard = page
-      .locator('li')
+      .getByTestId('ingredient-card')
       .filter({ hasText: 'Флюоресцентная булка' });
 
     await bunCard.getByRole('button', { name: /добавить/i }).click();
@@ -37,7 +33,9 @@ test.describe('Конструктор бургера', () => {
   });
 
   test('должен добавлять начинку в конструктор', async ({ page }) => {
-    const mainCard = page.locator('li').filter({ hasText: 'Биокотлета' });
+    const mainCard = page
+      .getByTestId('ingredient-card')
+      .filter({ hasText: 'Биокотлета' });
 
     await mainCard.getByRole('button', { name: /добавить/i }).click();
 
@@ -48,23 +46,11 @@ test.describe('Конструктор бургера', () => {
 });
 
 test.describe('Модальное окно ингредиента', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.route('**/api/ingredients', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ingredients)
-      });
-    });
-
-    await page.goto('/');
-  });
-
   test('должен открывать модальное окно ингредиента', async ({ page }) => {
     const ingredients = page.getByTestId('burger-ingredients');
 
     const ingredient = ingredients
-      .locator('li')
+      .getByTestId('ingredient-card')
       .filter({ hasText: 'Краторная булка' });
 
     await ingredient.click();
@@ -109,14 +95,6 @@ test.describe('Модальное окно ингредиента', () => {
 
 test.describe('Создание заказа', () => {
   test.beforeEach(async ({ page, context }) => {
-    await page.route('**/api/ingredients', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ingredients)
-      });
-    });
-
     await context.addCookies([
       {
         name: 'accessToken',
@@ -150,13 +128,13 @@ test.describe('Создание заказа', () => {
 
   test('должен создавать заказ и очищать конструктор', async ({ page }) => {
     await page
-      .locator('li')
+      .getByTestId('ingredient-card')
       .filter({ hasText: 'Флюоресцентная булка' })
       .getByRole('button', { name: /добавить/i })
       .click();
 
     await page
-      .locator('li')
+      .getByTestId('ingredient-card')
       .filter({ hasText: 'Биокотлета' })
       .getByRole('button', { name: /добавить/i })
       .click();
@@ -175,8 +153,8 @@ test.describe('Создание заказа', () => {
 
     const constructor = page.getByTestId('burger-constructor');
 
-    await expect(constructor).not.toContainText('Флюоресцентная булка');
+    await expect(constructor).toContainText('Выберите булки');
 
-    await expect(constructor).not.toContainText('Биокотлета');
+    await expect(constructor).toContainText('Выберите начинку');
   });
 });

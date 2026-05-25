@@ -56,7 +56,7 @@ describe('profileOrders reducer', () => {
   test('logout очищает заказы', () => {
     const stateWithOrders = {
       ...initialState,
-      order: mockOrder
+      orders: mockOrder
     };
 
     const state = profileOrdersReducer(

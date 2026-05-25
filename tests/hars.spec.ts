@@ -86,3 +86,22 @@ test('записать orders.har', async ({ page }) => {
 
   await page.waitForLoadState('networkidle');
 });
+
+test('записать ingredients.har', async ({ page }) => {
+  await page.routeFromHAR('./tests/hars/ingredients.har', {
+    url: '**/api/ingredients',
+    update: true
+  });
+
+  const ingredientsResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes('/api/ingredients') &&
+      response.request().method() === 'GET'
+  );
+
+  await page.goto('/');
+
+  await ingredientsResponse;
+
+  await page.waitForLoadState('networkidle');
+});
