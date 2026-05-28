@@ -8,7 +8,7 @@ export const fetchOrders = createAsyncThunk('feed/fetchOrders', async () => {
   return Promise.reject(data);
 });
 
-type TFeedState = {
+export type TFeedState = {
   orders: TOrder[];
   total: number;
   totalToday: number;
